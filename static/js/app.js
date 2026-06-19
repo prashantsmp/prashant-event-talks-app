@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchQuery = '';
     let showHashtags = true;
     
+    // Theme and Export Elements
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    
     // Elements
     const notesContainer = document.getElementById('notes-container');
     const loadingState = document.getElementById('loading-state');
@@ -54,6 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const circumference = 2 * Math.PI * circleRadius;
     charProgress.style.strokeDasharray = `${circumference} ${circumference}`;
     charProgress.style.strokeDashoffset = circumference;
+
+    // Theme Loader initialization
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        document.body.classList.remove('light-theme');
+        themeIcon.setAttribute('data-lucide', 'moon');
+    }
 
     // Initialize Lucide Icons
     lucide.createIcons();
@@ -211,9 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${note.date}
                         </span>
                     </div>
-                    <span class="card-action-hint">
-                        Select <i data-lucide="arrow-right"></i>
-                    </span>
+                    <button class="card-copy-btn" title="Copy text to clipboard">
+                        <i data-lucide="copy"></i>
+                    </button>
                 </div>
                 <div class="card-body">
                     ${note.html}
@@ -222,6 +237,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Attach selection handler
             card.addEventListener('click', () => selectNote(note, card));
+
+            // Attach copy handler
+            const copyBtn = card.querySelector('.card-copy-btn');
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Avoid selecting the card
+                navigator.clipboard.writeText(note.text).then(() => {
+                    showToast("Copied to clipboard!", "success");
+                    const icon = copyBtn.querySelector('i');
+                    icon.setAttribute('data-lucide', 'check');
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        icon.setAttribute('data-lucide', 'copy');
+                        lucide.createIcons();
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                    showToast("Failed to copy text", "error");
+                });
+            });
+
             notesContainer.appendChild(card);
         });
 
@@ -512,6 +547,57 @@ document.addEventListener('DOMContentLoaded', () => {
     btnHashtag.addEventListener('click', toggleHashtags);
     btnResetTweet.addEventListener('click', generateDefaultTweet);
     tweetBtn.addEventListener('click', launchTweet);
+
+    // Theme Toggle Handler
+    themeToggleBtn.addEventListener('click', () => {
+        if (document.body.classList.contains('light-theme')) {
+            document.body.classList.remove('light-theme');
+            themeIcon.setAttribute('data-lucide', 'moon');
+            localStorage.setItem('theme', 'dark');
+            showToast("Switched to dark theme", "success");
+        } else {
+            document.body.classList.add('light-theme');
+            themeIcon.setAttribute('data-lucide', 'sun');
+            localStorage.setItem('theme', 'light');
+            showToast("Switched to light theme", "success");
+        }
+        lucide.createIcons();
+    });
+
+    // CSV Exporter Handler
+    exportCsvBtn.addEventListener('click', () => {
+        if (filteredNotes.length === 0) {
+            showToast("No data to export", "warning");
+            return;
+        }
+        
+        const headers = ['Date', 'Type', 'Link', 'Content'];
+        const csvRows = [headers.join(',')];
+        
+        for (const note of filteredNotes) {
+            const escapedText = note.text.replace(/"/g, '""');
+            const row = [
+                `"${note.date}"`,
+                `"${note.type}"`,
+                `"${note.link || ''}"`,
+                `"${escapedText}"`
+            ];
+            csvRows.push(row.join(','));
+        }
+        
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bigquery_release_notes_${new Date().toISOString().slice(0,10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("Exported notes to CSV successfully!", "success");
+    });
 
     // Init active hashtag button style
     btnHashtag.classList.add('active');

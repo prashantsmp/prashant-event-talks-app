@@ -44,6 +44,73 @@
 }
 
 /* ----------------------------------------------------
+   LIGHT THEME VARIABLES & OVERRIDES
+   ---------------------------------------------------- */
+body.light-theme {
+    --bg-base: #f1f5f9;
+    --bg-surface: rgba(255, 255, 255, 0.7);
+    --bg-card: rgba(255, 255, 255, 0.45);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(59, 130, 246, 0.4);
+    
+    /* Semantic Colors */
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #64748b;
+    
+    /* Accents & Highlights */
+    --accent-cyan: #0284c7; /* Readable sky blue/cyan in light theme */
+    --accent-blue: #2563eb;
+    
+    /* Shadows */
+    --shadow-glow-cyan: 0 0 20px rgba(2, 132, 199, 0.1);
+    --shadow-glow-blue: 0 0 20px rgba(37, 99, 235, 0.1);
+    --shadow-card: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+}
+
+body.light-theme .bubble-1 {
+    background: radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, rgba(59, 130, 246, 0.05) 100%);
+}
+body.light-theme .bubble-2 {
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%);
+}
+body.light-theme .bubble-3 {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(2, 132, 199, 0.05) 100%);
+}
+
+body.light-theme input,
+body.light-theme textarea {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    color: #0f172a !important;
+}
+body.light-theme input::placeholder,
+body.light-theme textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+body.light-theme .composer-empty-state,
+body.light-theme .selected-meta-card {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.light-theme .selected-body-preview {
+    background: rgba(15, 23, 42, 0.03) !important;
+    color: #475569 !important;
+}
+body.light-theme .tweet-box-container {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-color: rgba(15, 23, 42, 0.1) !important;
+}
+body.light-theme .tweet-avatar {
+    color: white !important;
+}
+body.light-theme .header-logo .logo-icon {
+    background: rgba(2, 132, 199, 0.08);
+}
+
+
+/* ----------------------------------------------------
    BASE STYLES & RESET
    ---------------------------------------------------- */
 * {
@@ -498,10 +565,46 @@ body {
 }
 
 .card-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.75rem;
+    padding-right: 32px; /* Leave space for copy button */
+}
+
+.card-copy-btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-secondary);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    z-index: 5;
+}
+
+body.light-theme .card-copy-btn {
+    background: rgba(15, 23, 42, 0.04);
+}
+
+.card-copy-btn:hover {
+    background: rgba(0, 255, 209, 0.1);
+    color: var(--accent-cyan);
+    border-color: rgba(0, 255, 209, 0.4);
+}
+
+.card-copy-btn i {
+    width: 13px;
+    height: 13px;
 }
 
 .card-meta {
